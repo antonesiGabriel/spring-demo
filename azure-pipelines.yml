@@ -23,6 +23,21 @@ stages:
 - stage: Build
   displayName: Build stage
   jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      name: local
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags:  |
+          latest
+          $(Build.BuildId)
   - job: CodeCoverage
     displayName: Code Coverage
     pool:
@@ -57,18 +72,3 @@ stages:
         inputs:
           summaryFileLocation: $(System.DefaultWorkingDirectory)/target/site/jacoco/jacoco.xml
           pathToSources: $(System.DefaultWorkingDirectory)/src/main/java/
-  - job: Build
-    displayName: Build
-    pool:
-      name: local
-    steps:
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        command: buildAndPush
-        repository: $(imageRepository)
-        dockerfile: $(dockerfilePath)
-        containerRegistry: $(dockerRegistryServiceConnection)
-        tags:  |
-          latest
-          $(Build.BuildId)
